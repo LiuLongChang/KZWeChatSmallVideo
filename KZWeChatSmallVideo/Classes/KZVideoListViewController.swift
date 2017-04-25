@@ -10,61 +10,61 @@ import UIKit
 
 class KZCircleCloseBtn: UIButton {
     
-    override func drawRect(rect: CGRect) {
-        super.drawRect(rect)
-        self.layer.backgroundColor = UIColor.whiteColor().CGColor
+    override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        self.layer.backgroundColor = UIColor.white.cgColor
         self.layer.cornerRadius = self.bounds.width/2
         self.layer.masksToBounds = true
         
         let context = UIGraphicsGetCurrentContext()
-        CGContextSetAllowsAntialiasing(context, true)
-        CGContextSetStrokeColorWithColor(context, kzThemeBlackColor.CGColor)
-        CGContextSetLineWidth(context, 1.0)
-        CGContextSetLineCap(context, .Round);
+        context?.setAllowsAntialiasing(true)
+        context?.setStrokeColor(kzThemeBlackColor.cgColor)
+        context?.setLineWidth(1.0)
+        context?.setLineCap(.round);
         
-        let selfCent = CGPointMake(self.bounds.width/2, self.bounds.height/2)
+        let selfCent = CGPoint(x: self.bounds.width/2, y: self.bounds.height/2)
         let closeWidth:CGFloat = 8.0
 
-        CGContextMoveToPoint(context, selfCent.x-closeWidth/2, selfCent.y - closeWidth/2)
-        CGContextAddLineToPoint(context, selfCent.x + closeWidth/2, selfCent.y + closeWidth/2)
+        context?.move(to: CGPoint(x: selfCent.x-closeWidth/2, y: selfCent.y - closeWidth/2))
+        context?.addLine(to: CGPoint(x: selfCent.x + closeWidth/2, y: selfCent.y + closeWidth/2))
         
-        CGContextMoveToPoint(context, selfCent.x-closeWidth/2, selfCent.y + closeWidth/2)
-        CGContextAddLineToPoint(context, selfCent.x + closeWidth/2, selfCent.y - closeWidth/2)
+        context?.move(to: CGPoint(x: selfCent.x-closeWidth/2, y: selfCent.y + closeWidth/2))
+        context?.addLine(to: CGPoint(x: selfCent.x + closeWidth/2, y: selfCent.y - closeWidth/2))
         
-        CGContextDrawPath(context, .Stroke)
+        context?.drawPath(using: .stroke)
     }
 }
 
 private class KZVideoListCell: UICollectionViewCell {
     
-    private let thumImage:UIImageView = UIImageView()
-    private var model:KZVideoModel? = nil
-    private let closeBtn = KZCircleCloseBtn(type:.Custom)
+    fileprivate let thumImage:UIImageView = UIImageView()
+    fileprivate var model:KZVideoModel? = nil
+    fileprivate let closeBtn = KZCircleCloseBtn(type:.custom)
     var deleteVideoBlock:((KZVideoModel) -> Void)? = nil
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        self.thumImage.frame = CGRectMake(4, 4, self.bounds.width - 8, self.bounds.height - 8)
+        self.thumImage.frame = CGRect(x: 4, y: 4, width: self.bounds.width - 8, height: self.bounds.height - 8)
         self.thumImage.layer.cornerRadius = 8.0
         self.thumImage.layer.masksToBounds = true
         self.contentView.addSubview(self.thumImage)
         
-        self.closeBtn.frame = CGRectMake(0, 0, 22, 22)
-        self.closeBtn.addTarget(self, action: #selector(deleteAction), forControlEvents: .TouchUpInside)
+        self.closeBtn.frame = CGRect(x: 0, y: 0, width: 22, height: 22)
+        self.closeBtn.addTarget(self, action: #selector(deleteAction), for: .touchUpInside)
         self.contentView.addSubview(self.closeBtn)
-        self.closeBtn.hidden = true
+        self.closeBtn.isHidden = true
     }
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setModel(newModel:KZVideoModel) {
+    func setModel(_ newModel:KZVideoModel) {
         self.model = newModel
         self.thumImage.image = UIImage(contentsOfFile: newModel.totalThumPath!)
     }
     
-    func setEdit(edit:Bool) {
-        self.closeBtn.hidden = !edit
+    func setEdit(_ edit:Bool) {
+        self.closeBtn.isHidden = !edit
     }
     
     @objc func deleteAction() {
@@ -82,24 +82,25 @@ private class KZAddNewVideoCell: UICollectionViewCell {
     }
     func setupView() {
         let bgLayer = CALayer()
-        bgLayer.frame = CGRectMake(4, 4, self.bounds.width - 8, self.bounds.height - 8)
-        bgLayer.backgroundColor = UIColor ( red: 0.5, green: 0.5, blue: 0.5, alpha: 0.3 ).CGColor
+        bgLayer.frame = CGRect(x: 4, y: 4, width: self.bounds.width - 8, height: self.bounds.height - 8)
+        bgLayer.backgroundColor = UIColor ( red: 0.5, green: 0.5, blue: 0.5, alpha: 0.3 ).cgColor
         bgLayer.cornerRadius = 8.0
         bgLayer.masksToBounds = true
         self.contentView.layer.addSublayer(bgLayer)
         
-        let selfCent = CGPointMake(bgLayer.bounds.width/2, bgLayer.bounds.height/2)
+        let selfCent = CGPoint(x: bgLayer.bounds.width/2, y: bgLayer.bounds.height/2)
         let len:CGFloat = 20
-        let path = CGPathCreateMutable()
-        CGPathMoveToPoint(path, nil, selfCent.x, selfCent.y - len)
-        CGPathAddLineToPoint(path, nil, selfCent.x, selfCent.y + len)
-        
-        CGPathMoveToPoint(path, nil, selfCent.x - len, selfCent.y)
-        CGPathAddLineToPoint(path, nil, selfCent.x + len, selfCent.y)
+        let path = CGMutablePath()
+
+
+        path.move(to: CGPoint.init(x: selfCent.x, y: selfCent.y - len))
+        path.addLine(to: CGPoint.init(x: selfCent.x, y: selfCent.y + len))
+        path.move(to: CGPoint.init(x:selfCent.x - len, y: selfCent.y))
+        path.addLine(to: CGPoint.init(x:selfCent.x + len,y:selfCent.y))
         
         let crossLayer = CAShapeLayer()
-        crossLayer.fillColor = UIColor.clearColor().CGColor
-        crossLayer.strokeColor = kzThemeGraryColor.CGColor
+        crossLayer.fillColor = UIColor.clear.cgColor
+        crossLayer.strokeColor = kzThemeGraryColor.cgColor
         crossLayer.lineWidth = 4.0
         crossLayer.path = path
         crossLayer.opacity = 1.0
@@ -119,35 +120,35 @@ class KZVideoListViewController: NSObject, UICollectionViewDelegate, UICollectio
     
     
     let actionView:UIView = UIView()
-    private var collection:UICollectionView! = nil
-    private let titleLabel:UILabel! = UILabel()
+    fileprivate var collection:UICollectionView! = nil
+    fileprivate let titleLabel:UILabel! = UILabel()
     
-    private let leftBtn:KZCloseBtn = KZCloseBtn(type: .Custom)
-    private let rightBtn = UIButton(type: .Custom)
-    private let videoInfoLabel = UILabel()
+    fileprivate let leftBtn:KZCloseBtn = KZCloseBtn(type: .custom)
+    fileprivate let rightBtn = UIButton(type: .custom)
+    fileprivate let videoInfoLabel = UILabel()
     
-    private var dataArr:[KZVideoModel]! = nil
+    fileprivate var dataArr:[KZVideoModel]! = nil
     
     //MARK: - public Func
     func showAniamtion() {
         self.setupSupViews()
         currentListVC = self
-        let keyWindow = UIApplication.sharedApplication().delegate?.window!
-        self.actionView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 1.6, 1.6)
+        let keyWindow = UIApplication.shared.delegate?.window!
+        self.actionView.transform = CGAffineTransform.identity.scaledBy(x: 1.6, y: 1.6)
         self.actionView.alpha = 0.0
         keyWindow?.addSubview(self.actionView)
         
-        UIView.animateWithDuration(0.3, delay: 0.0, options: .CurveEaseInOut, animations: { 
-            self.actionView.transform = CGAffineTransformIdentity
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: UIViewAnimationOptions(), animations: { 
+            self.actionView.transform = CGAffineTransform.identity
             self.actionView.alpha = 1.0
             }) { (finished) in
                 
         }
         self.setupCollectionView()
     }
-   private func closeAnimation() {
-        UIView.animateWithDuration(0.3, delay: 0.0, options: .CurveEaseInOut, animations: {
-            self.actionView.transform = CGAffineTransformTranslate(CGAffineTransformIdentity, 0, self.actionView.bounds.width)
+   fileprivate func closeAnimation() {
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: UIViewAnimationOptions(), animations: {
+            self.actionView.transform = CGAffineTransform.identity.translatedBy(x: 0, y: self.actionView.bounds.width)
             self.actionView.alpha = 0.0
         }) { (finished) in
             self.actionView.removeFromSuperview()
@@ -161,48 +162,48 @@ class KZVideoListViewController: NSObject, UICollectionViewDelegate, UICollectio
 //        self.setupSupViews()
 //    }
     
-    private func setupSupViews() {
+    fileprivate func setupSupViews() {
         self.actionView.frame = viewFrame
         self.actionView.backgroundColor = kzThemeBlackColor
 //        self.view.addSubview(self.actionView)
         
-        self.titleLabel.frame = CGRectMake(0, 0, self.actionView.frame.width, 40)
+        self.titleLabel.frame = CGRect(x: 0, y: 0, width: self.actionView.frame.width, height: 40)
         self.titleLabel.textColor = kzThemeGraryColor
-        self.titleLabel.textAlignment = .Center
-        self.titleLabel.font = UIFont.boldSystemFontOfSize(16.0)
+        self.titleLabel.textAlignment = .center
+        self.titleLabel.font = UIFont.boldSystemFont(ofSize: 16.0)
         self.titleLabel.text = "小视频"
         self.actionView.addSubview(self.titleLabel)
         
-        self.leftBtn.frame = CGRectMake(0, 0, 60, 40)
+        self.leftBtn.frame = CGRect(x: 0, y: 0, width: 60, height: 40)
         self.leftBtn.color = kzThemeTineColor
-        self.leftBtn.addTarget(self, action: #selector(closeViewAction), forControlEvents: .TouchUpInside)
+        self.leftBtn.addTarget(self, action: #selector(closeViewAction), for: .touchUpInside)
         self.actionView.addSubview(self.leftBtn)
         self.leftBtn.setNeedsDisplay()
 
-        self.rightBtn.frame = CGRectMake(self.actionView.frame.width - 60, 0, 60, 40)
-        self.rightBtn.setTitle("编辑", forState: .Normal)
-        self.rightBtn.setTitle("完成", forState: .Selected)
-        self.rightBtn.setTitleColor(kzThemeTineColor, forState: .Normal)
-        self.rightBtn.setTitleColor(kzThemeTineColor, forState: .Selected)
-        self.rightBtn.addTarget(self, action: #selector(editVideosAction), forControlEvents: .TouchUpInside)
+        self.rightBtn.frame = CGRect(x: self.actionView.frame.width - 60, y: 0, width: 60, height: 40)
+        self.rightBtn.setTitle("编辑", for: UIControlState())
+        self.rightBtn.setTitle("完成", for: .selected)
+        self.rightBtn.setTitleColor(kzThemeTineColor, for: UIControlState())
+        self.rightBtn.setTitleColor(kzThemeTineColor, for: .selected)
+        self.rightBtn.addTarget(self, action: #selector(editVideosAction), for: .touchUpInside)
         self.actionView.addSubview(self.rightBtn)
         
     }
 
-    private func setupCollectionView() {
+    fileprivate func setupCollectionView() {
         self.dataArr = KZVideoUtil.getSortVideoList()
         
         let itemWidth = (self.actionView.frame.width - 40)/3
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 8
-        layout.itemSize = CGSizeMake(itemWidth, itemWidth/3*2)
+        layout.itemSize = CGSize(width: itemWidth, height: itemWidth/3*2)
         layout.sectionInset = UIEdgeInsetsMake(10, 8, 10, 8)
-        self.collection = UICollectionView(frame: CGRectMake(0, self.titleLabel.frame.maxY, self.actionView.frame.width, self.actionView.frame.height - self.titleLabel.frame.height), collectionViewLayout: layout)
+        self.collection = UICollectionView(frame: CGRect(x: 0, y: self.titleLabel.frame.maxY, width: self.actionView.frame.width, height: self.actionView.frame.height - self.titleLabel.frame.height), collectionViewLayout: layout)
         self.collection.delegate = self
         self.collection.dataSource = self
-        self.collection.registerClass(KZVideoListCell.classForCoder(), forCellWithReuseIdentifier: "Cell")
-        self.collection.registerClass(KZAddNewVideoCell.classForCoder(), forCellWithReuseIdentifier: "AddCell")
-        self.collection.backgroundColor = UIColor.clearColor()
+        self.collection.register(KZVideoListCell.classForCoder(), forCellWithReuseIdentifier: "Cell")
+        self.collection.register(KZAddNewVideoCell.classForCoder(), forCellWithReuseIdentifier: "AddCell")
+        self.collection.backgroundColor = UIColor.clear
         self.actionView.addSubview(self.collection)
     }
 //    override func didReceiveMemoryWarning() {
@@ -215,12 +216,12 @@ class KZVideoListViewController: NSObject, UICollectionViewDelegate, UICollectio
     }
     
     func editVideosAction() {
-        self.rightBtn.selected = !self.rightBtn.selected
+        self.rightBtn.isSelected = !self.rightBtn.isSelected
         self.collection.reloadData()
     }
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if self.rightBtn.selected {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if self.rightBtn.isSelected {
             return self.dataArr.count
         }
         else {
@@ -228,28 +229,28 @@ class KZVideoListViewController: NSObject, UICollectionViewDelegate, UICollectio
         }
     }
 
-   func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.item == self.dataArr.count {
-            let addCell = collectionView.dequeueReusableCellWithReuseIdentifier("AddCell", forIndexPath: indexPath)
+            let addCell = collectionView.dequeueReusableCell(withReuseIdentifier: "AddCell", for: indexPath)
             return addCell
         }
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("Cell", forIndexPath: indexPath) as! KZVideoListCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! KZVideoListCell
         let model = self.dataArr[indexPath.item]
         cell.setModel(model)
-        cell.setEdit(self.rightBtn.selected)
+        cell.setEdit(self.rightBtn.isSelected)
         cell.deleteVideoBlock = { cellModel in
             
-            let cellIndexPath = NSIndexPath(forItem: self.dataArr.indexOf(cellModel)!, inSection: 0)
-            self.dataArr.removeAtIndex(cellIndexPath.item)
-            collectionView.deleteItemsAtIndexPaths([cellIndexPath])
+            let cellIndexPath = IndexPath(item: self.dataArr.index(of: cellModel)!, section: 0)
+            self.dataArr.remove(at: cellIndexPath.item)
+            collectionView.deleteItems(at: [cellIndexPath])
             KZVideoUtil.deletefile(model.totalVideoPath)
             
         }
         return cell
     }
     
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.item == self.dataArr.count { // add NewVideo
             self.closeAnimation()
         }

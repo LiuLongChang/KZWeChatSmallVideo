@@ -11,50 +11,50 @@ import AVFoundation
 
 @objc public protocol KZVideoViewControllerDelegate {
     
-    optional func videoViewController(videoViewController: KZVideoViewController!, didRecordVideo video:KZVideoModel!)
+    @objc optional func videoViewController(_ videoViewController: KZVideoViewController!, didRecordVideo video:KZVideoModel!)
     
-    optional func videoViewControllerDidCancel(videoViewController: KZVideoViewController!)
+    @objc optional func videoViewControllerDidCancel(_ videoViewController: KZVideoViewController!)
     
 }
 
 private var currentVC:KZVideoViewController? = nil
 
-public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCaptureFileOutputRecordingDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
+open class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCaptureFileOutputRecordingDelegate, AVCaptureVideoDataOutputSampleBufferDelegate {
 
-    private let view:UIView = UIView(frame:UIScreen.mainScreen().bounds)
+    fileprivate let view:UIView = UIView(frame:UIScreen.main.bounds)
     
-    private let actionView:UIView! = UIView(frame: viewFrame)
+    fileprivate let actionView:UIView! = UIView(frame: viewFrame)
     
-    private let topSlideView:KZStatusBar! = KZStatusBar()
+    fileprivate let topSlideView:KZStatusBar! = KZStatusBar()
     
-    private let videoView:UIView! = UIView()
-    private let focusView:KZfocusView! = KZfocusView(frame: CGRectMake(0, 0, 60, 60))
-    private let statusInfo:UILabel = UILabel()
-    private let cancelInfo:UILabel = UILabel()
+    fileprivate let videoView:UIView! = UIView()
+    fileprivate let focusView:KZfocusView! = KZfocusView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+    fileprivate let statusInfo:UILabel = UILabel()
+    fileprivate let cancelInfo:UILabel = UILabel()
     
-    private let ctrlBar:KZControllerBar! = KZControllerBar()
+    fileprivate let ctrlBar:KZControllerBar! = KZControllerBar()
     
-    private var videoSession:AVCaptureSession! = nil
-    private var videoPreLayer:AVCaptureVideoPreviewLayer! = nil
-    private var videoDevice:AVCaptureDevice! = nil
-    private var moveOut:AVCaptureMovieFileOutput? = nil
+    fileprivate var videoSession:AVCaptureSession! = nil
+    fileprivate var videoPreLayer:AVCaptureVideoPreviewLayer! = nil
+    fileprivate var videoDevice:AVCaptureDevice! = nil
+    fileprivate var moveOut:AVCaptureMovieFileOutput? = nil
 //    private var videoDataOut:AVCaptureVideoDataOutput? = nil
     
 //    AVCaptureVideoDataOutput
-    private var currentRecord:KZVideoModel? = nil
-    private var currentRecordIsCancel:Bool = false
+    fileprivate var currentRecord:KZVideoModel? = nil
+    fileprivate var currentRecordIsCancel:Bool = false
     
-    public var delegate:KZVideoViewControllerDelegate? = nil
+    open var delegate:KZVideoViewControllerDelegate? = nil
     
     func startAnimation() {
         
         self.controllerSetup()
         currentVC = self
-        let keyWindow = UIApplication.sharedApplication().delegate?.window!
+        let keyWindow = UIApplication.shared.delegate?.window!
         keyWindow?.addSubview(self.view)
-        self.actionView.transform = CGAffineTransformTranslate(CGAffineTransformIdentity, 0, kzSCREEN_HEIGHT*0.6)
-        UIView.animateWithDuration(0.3, delay: 0.0, options: .CurveEaseInOut, animations: { 
-            self.actionView.transform = CGAffineTransformIdentity
+        self.actionView.transform = CGAffineTransform.identity.translatedBy(x: 0, y: kzSCREEN_HEIGHT*0.6)
+        UIView.animate(withDuration: 0.3, delay: 0.0, options: UIViewAnimationOptions(), animations: { 
+            self.actionView.transform = CGAffineTransform.identity
             self.view.backgroundColor = UIColor( red: 0.0, green: 0.0, blue: 0.0, alpha: 0.4)
             }) { (finished) in
         }
@@ -67,26 +67,26 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
     }
     
     func endAnimation() {
-        UIView.animateWithDuration(0.3, animations: { 
-            self.view.backgroundColor = UIColor.clearColor()
-            self.actionView.transform = CGAffineTransformTranslate(CGAffineTransformIdentity, 0, kzSCREEN_HEIGHT*0.6)
-            }) { (finished) in
+        UIView.animate(withDuration: 0.3, animations: { 
+            self.view.backgroundColor = UIColor.clear
+            self.actionView.transform = CGAffineTransform.identity.translatedBy(x: 0, y: kzSCREEN_HEIGHT*0.6)
+            }, completion: { (finished) in
             self.closeView()
-        }
+        }) 
     }
     func closeView() {
         self.view.removeFromSuperview()
         currentVC = nil
     }
     
-    private func controllerSetup() {
-        self.view.backgroundColor = UIColor.clearColor()
+    fileprivate func controllerSetup() {
+        self.view.backgroundColor = UIColor.clear
         self.setupSubViews()
         // 
-        let cancelBtn = UIButton(type: .Custom)
+        let cancelBtn = UIButton(type: .custom)
         cancelBtn.titleLabel?.text = "cancel"
-        cancelBtn.frame = CGRectMake(0, 0, 60, 60)
-        cancelBtn.addTarget(self, action: #selector(KZVideoViewController.cancelDismiss), forControlEvents: .TouchUpInside)
+        cancelBtn.frame = CGRect(x: 0, y: 0, width: 60, height: 60)
+        cancelBtn.addTarget(self, action: #selector(KZVideoViewController.cancelDismiss), for: .touchUpInside)
         self.view.addSubview(cancelBtn)
     }
     
@@ -95,8 +95,8 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
     }
     
     // MARK: - satup Views
-    private func setupSubViews() {
-        self.actionView.backgroundColor = UIColor.whiteColor()
+    fileprivate func setupSubViews() {
+        self.actionView.backgroundColor = UIColor.white
         self.view.addSubview(self.actionView)
         
         let themeColor = kzThemeBlackColor
@@ -108,51 +108,51 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
         let allWidth = actionView.frame.width
         
         
-        self.topSlideView.frame = CGRectMake(0, 0, allWidth, topHeight)
+        self.topSlideView.frame = CGRect(x: 0, y: 0, width: allWidth, height: topHeight)
         self.topSlideView.backgroundColor = themeColor
         self.actionView.addSubview(self.topSlideView)
         
         
-        self.ctrlBar.frame = CGRectMake(0, allHeight - buttomHeight, allWidth, buttomHeight)
+        self.ctrlBar.frame = CGRect(x: 0, y: allHeight - buttomHeight, width: allWidth, height: buttomHeight)
         self.ctrlBar.setupSubViews()
         self.ctrlBar.backgroundColor = themeColor
         self.ctrlBar.delegate = self
         self.actionView.addSubview(self.ctrlBar)
         
         
-        self.videoView.frame = CGRectMake(0, CGRectGetMaxY(self.topSlideView.frame), allWidth, allHeight - topHeight - buttomHeight)
+        self.videoView.frame = CGRect(x: 0, y: self.topSlideView.frame.maxY, width: allWidth, height: allHeight - topHeight - buttomHeight)
         self.actionView.addSubview(self.videoView)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(KZVideoViewController.focusAction(_:)))
         self.videoView.addGestureRecognizer(tapGesture)
         
-        self.focusView.backgroundColor = UIColor.clearColor()
+        self.focusView.backgroundColor = UIColor.clear
         
         
-        self.statusInfo.frame = CGRectMake(0, self.videoView.frame.maxY - 30, self.videoView.frame.width, 20)
-        self.statusInfo.textAlignment = .Center
-        self.statusInfo.font = UIFont.systemFontOfSize(14.0)
-        self.statusInfo.textColor = UIColor.whiteColor()
-        self.statusInfo.hidden = true
+        self.statusInfo.frame = CGRect(x: 0, y: self.videoView.frame.maxY - 30, width: self.videoView.frame.width, height: 20)
+        self.statusInfo.textAlignment = .center
+        self.statusInfo.font = UIFont.systemFont(ofSize: 14.0)
+        self.statusInfo.textColor = UIColor.white
+        self.statusInfo.isHidden = true
         self.actionView.addSubview(self.statusInfo)
         
-        self.cancelInfo.frame = CGRectMake(0, 0, 120, 24)
+        self.cancelInfo.frame = CGRect(x: 0, y: 0, width: 120, height: 24)
         self.cancelInfo.center = self.videoView.center
-        self.cancelInfo.textAlignment = .Center
+        self.cancelInfo.textAlignment = .center
         self.cancelInfo.textColor = kzThemeWhiteColor
         self.cancelInfo.backgroundColor = kzThemeWaringColor
-        self.cancelInfo.hidden = true
+        self.cancelInfo.isHidden = true
         self.actionView.addSubview(self.cancelInfo)
         
     }
     // MARK: - setup Video
-    private func setupVideo() throws {
-        let devicesVideo = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo)
-        let devicesAudio = AVCaptureDevice.devicesWithMediaType(AVMediaTypeAudio)
+    fileprivate func setupVideo() throws {
+        let devicesVideo = AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo)
+        let devicesAudio = AVCaptureDevice.devices(withMediaType: AVMediaTypeAudio)
         
-        let videoInput = try AVCaptureDeviceInput(device: devicesVideo[0] as! AVCaptureDevice)
-        let audioInput = try AVCaptureDeviceInput(device: devicesAudio[0] as! AVCaptureDevice)
+        let videoInput = try AVCaptureDeviceInput(device: devicesVideo?[0] as! AVCaptureDevice)
+        let audioInput = try AVCaptureDeviceInput(device: devicesAudio?[0] as! AVCaptureDevice)
         
-        self.videoDevice = devicesVideo[0] as! AVCaptureDevice
+        self.videoDevice = devicesVideo?[0] as! AVCaptureDevice
         
         let moveOut = AVCaptureMovieFileOutput()
         self.moveOut = moveOut
@@ -192,16 +192,16 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
     
     // MARK: - Actions
     // 聚焦
-    func focusAction(sender:UITapGestureRecognizer) {
-        let point = sender.locationInView(self.videoView)
+    func focusAction(_ sender:UITapGestureRecognizer) {
+        let point = sender.location(in: self.videoView)
         self.focusView.center = point
         self.videoView.addSubview(self.focusView)
-        self.videoView.bringSubviewToFront(self.focusView)
+        self.videoView.bringSubview(toFront: self.focusView)
         
-        if self.videoDevice.accessibilityElementIsFocused() && self.videoDevice.isFocusModeSupported(.AutoFocus) {
+        if self.videoDevice.accessibilityElementIsFocused() && self.videoDevice.isFocusModeSupported(.autoFocus) {
             do {
                 try self.videoDevice.lockForConfiguration()
-                self.videoDevice.focusMode = .AutoFocus
+                self.videoDevice.focusMode = .autoFocus
                 self.videoDevice.focusPointOfInterest = point
                 self.videoDevice.unlockForConfiguration()
             }
@@ -210,7 +210,7 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
             }
         }
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0*Double(NSEC_PER_SEC))), dispatch_get_main_queue()) {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1.0*Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
             self.focusView.removeFromSuperview()
         }
     }
@@ -223,25 +223,25 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
     
     //MARK: - controllerBarDelegate
     
-    func videoDidStart(controllerBar: KZControllerBar!) {
+    func videoDidStart(_ controllerBar: KZControllerBar!) {
         print("视频录制开始了")
         self.currentRecord = KZVideoUtil.createNewVideo()
         self.currentRecordIsCancel = false
-        let outUrl = NSURL(fileURLWithPath: self.currentRecord!.totalVideoPath)
-        self.moveOut?.startRecordingToOutputFileURL(outUrl, recordingDelegate: self)
+        let outUrl = URL(fileURLWithPath: self.currentRecord!.totalVideoPath)
+        self.moveOut?.startRecording(toOutputFileURL: outUrl, recordingDelegate: self)
         
 //        self.videoDataOut.
         self.topSlideView.isRecoding = true
         
         self.statusInfo.textColor = kzThemeTineColor
         self.statusInfo.text = "↑上移取消"
-        self.statusInfo.hidden = false
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5*Double(NSEC_PER_SEC))), dispatch_get_main_queue(), {
-            self.statusInfo.hidden = true
+        self.statusInfo.isHidden = false
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(0.5*Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: {
+            self.statusInfo.isHidden = true
         })
     }
     
-    func videoDidEnd(controllerBar: KZControllerBar!) {
+    func videoDidEnd(_ controllerBar: KZControllerBar!) {
         print("视频录制结束了")
         self.moveOut?.stopRecording()
         self.topSlideView.isRecoding = false
@@ -250,39 +250,39 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
 //        self.endAnimation()
     }
     
-    func videoDidCancel(controllerBar: KZControllerBar!) {
+    func videoDidCancel(_ controllerBar: KZControllerBar!) {
         print("视频录制已经取消了")
         self.moveOut?.stopRecording()
         self.currentRecordIsCancel = true
         self.delegate?.videoViewControllerDidCancel!(self)
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1.0*Double(NSEC_PER_SEC))), dispatch_get_main_queue(), {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1.0*Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: {
             KZVideoUtil.deletefile(self.currentRecord!.totalVideoPath)
         })
     }
     
-    func videoWillCancel(controllerBar: KZControllerBar!) {
+    func videoWillCancel(_ controllerBar: KZControllerBar!) {
         print("视频录制将要取消")
-        if !self.cancelInfo.hidden {
+        if !self.cancelInfo.isHidden {
             return
         }
         self.cancelInfo.text = "松手取消"
-        self.cancelInfo.hidden = false
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(0.5*Double(NSEC_PER_SEC))), dispatch_get_main_queue(), {
-            self.cancelInfo.hidden = true
+        self.cancelInfo.isHidden = false
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(0.5*Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: {
+            self.cancelInfo.isHidden = true
         })
     }
     
-    func videoDidRecordSEC(controllerBar: KZControllerBar!) {
+    func videoDidRecordSEC(_ controllerBar: KZControllerBar!) {
         print("视频录制又过了一秒")
         self.topSlideView.isRecoding = true
     }
     
-    func videoDidClose(controllerBar: KZControllerBar!) {
+    func videoDidClose(_ controllerBar: KZControllerBar!) {
         print("关闭界面")
         self.cancelDismiss()
     }
     
-    func videoOpenVideoList(controllerBar: KZControllerBar!) {
+    func videoOpenVideoList(_ controllerBar: KZControllerBar!) {
         print("查看视频列表")
         let listVideoVC = KZVideoListViewController()
         listVideoVC.selectBlock = { (listVC, selectVideo) in
@@ -294,11 +294,11 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
     }
     
     // MARK: - AVCaptureFileOutputRecordingDelegate -
-    public func captureOutput(captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAtURL fileURL: NSURL!, fromConnections connections: [AnyObject]!) {
+    open func capture(_ captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAt fileURL: URL!, fromConnections connections: [Any]!) {
         print("视频已经开始录制......")
     }
     
-    public func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
+    open func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!) {
         print("视频完成录制......")
         if !currentRecordIsCancel {
             KZVideoUtil.saveThumImage(outputFileURL, second: 1)
@@ -308,10 +308,10 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
     }
     
     // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-    public func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
+    open func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
         
         let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
-        CVPixelBufferLockBaseAddress( pixelBuffer, 0 );
+        CVPixelBufferLockBaseAddress( pixelBuffer, CVPixelBufferLockFlags(rawValue: 0) );
         let len = CVPixelBufferGetDataSize(pixelBuffer)
         
         let pixel = CVPixelBufferGetBaseAddress(pixelBuffer)
@@ -325,21 +325,24 @@ public class KZVideoViewController: NSObject, KZControllerBarDelegate, AVCapture
         
         let newWidth = 480
         let newHeight = 480*height/width
-        let options = [kCVPixelBufferCGImageCompatibilityKey as String:NSNumber(bool:true), kCVPixelBufferCGBitmapContextCompatibilityKey as String:NSNumber(bool:true)]
-        let status = CVPixelBufferCreateWithBytes(kCFAllocatorDefault, newWidth, newHeight, kCVPixelFormatType_32BGRA, pixel, pxPerRow, nil, nil, options, &newPixelBuffer)
+        let options = [kCVPixelBufferCGImageCompatibilityKey as String:NSNumber(value: true as Bool), kCVPixelBufferCGBitmapContextCompatibilityKey as String:NSNumber(value: true as Bool)]
+        let status = CVPixelBufferCreateWithBytes(kCFAllocatorDefault, newWidth, newHeight, kCVPixelFormatType_32BGRA, pixel!, pxPerRow, nil, nil, options as CFDictionary, &newPixelBuffer)
         
         let description = CMSampleBufferGetFormatDescription(sampleBuffer)
         var newBuffer:CMSampleBuffer? = nil
-        
+
+
         if status == kCVReturnSuccess {
-            CMSampleBufferCreateForImageBuffer(kCFAllocatorDefault, newPixelBuffer!, true, nil, nil, description!, nil, &newBuffer)
+            var timingInfo = CMSampleTimingInfo()
+            CMSampleBufferCreateForImageBuffer(kCFAllocatorDefault, newPixelBuffer!, true, nil, nil, description!, &timingInfo, &newBuffer)
         }
 
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0));
         print("width : \(width)\theight : \(height)\nlen : \(len)80")
     }
     
-    public func captureOutput(captureOutput: AVCaptureOutput!, didDropSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
+    open func captureOutput(_ captureOutput: AVCaptureOutput!, didDrop sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
         
     }
     

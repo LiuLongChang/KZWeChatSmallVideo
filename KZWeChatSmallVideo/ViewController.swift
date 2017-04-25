@@ -25,21 +25,21 @@ class ViewController: UIViewController , KZVideoViewControllerDelegate{
         // Dispose of any resources that can be recreated.
     }
 
-    @IBAction func videoAction(sender: AnyObject) {
+    @IBAction func videoAction(_ sender: AnyObject) {
         let videoVC = KZVideoViewController()
         videoVC.delegate = self
 //        self.presentViewController(videoVC, animated: true, completion: nil)
         videoVC.startAnimation()
     }
     
-    @IBAction func playAction(sender: AnyObject) {
+    @IBAction func playAction(_ sender: AnyObject) {
         guard self.video != nil else {
             return
         }
     }
 
-    func videoViewController(videoViewController: KZVideoViewController!, didRecordVideo video: KZVideoModel!) {
-        self.playBtn.setBackgroundImage(UIImage(contentsOfFile: video.totalThumPath!), forState: .Normal)
+    func videoViewController(_ videoViewController: KZVideoViewController!, didRecordVideo video: KZVideoModel!) {
+        self.playBtn.setBackgroundImage(UIImage(contentsOfFile: video.totalThumPath!), for: UIControlState())
         self.video = video
         self.videoView.layoutIfNeeded()
         
@@ -47,11 +47,11 @@ class ViewController: UIViewController , KZVideoViewControllerDelegate{
             subView.removeFromSuperview()
         }
         
-        let player = KZVideoPlayer(frame: self.videoView.bounds, aVideoURL: NSURL(fileURLWithPath: video.totalVideoPath))
+        let player = KZVideoPlayer(frame: self.videoView.bounds, aVideoURL: URL(fileURLWithPath: video.totalVideoPath))
         self.videoView.addSubview(player)
     }
     
-    func videoViewControllerDidCancel(videoViewController: KZVideoViewController!) {
+    func videoViewControllerDidCancel(_ videoViewController: KZVideoViewController!) {
         
     }
 }

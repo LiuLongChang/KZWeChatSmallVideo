@@ -14,11 +14,11 @@ class KZVideoPlayer: UIView {
     
     var videoCtrl:UIView! = nil
     
-    var videoUrl:NSURL? = nil
+    var videoUrl:URL? = nil
     
     var isPlaying:Bool = false
     
-    init(frame: CGRect, aVideoURL:NSURL) {
+    init(frame: CGRect, aVideoURL:URL) {
         super.init(frame: frame)
         self.videoUrl = aVideoURL
         self.setupView()
@@ -29,9 +29,9 @@ class KZVideoPlayer: UIView {
     }
     
     func setupView() {
-        let playerItem = AVPlayerItem(URL: self.videoUrl!)
+        let playerItem = AVPlayerItem(url: self.videoUrl!)
         self.player = AVPlayer(playerItem: playerItem)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(playEnd), name: AVPlayerItemDidPlayToEndTimeNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(playEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
         
         let playerLayer = AVPlayerLayer(player: self.player)
         playerLayer.frame = self.bounds
@@ -40,7 +40,7 @@ class KZVideoPlayer: UIView {
         
         
         self.videoCtrl = UIView(frame: self.bounds)
-        self.videoCtrl.backgroundColor = UIColor.clearColor()
+        self.videoCtrl.backgroundColor = UIColor.clear
         self.addSubview(self.videoCtrl)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapAction))
         self.videoCtrl.addGestureRecognizer(tapGesture)
@@ -48,20 +48,20 @@ class KZVideoPlayer: UIView {
     }
     
     func stopViewChange() {
-        let selfCent = CGPointMake(self.bounds.width/2+10, self.bounds.height/2)
+        let selfCent = CGPoint(x: self.bounds.width/2+10, y: self.bounds.height/2)
         let width:CGFloat = 40
         
-        let path = CGPathCreateMutable()
-        CGPathMoveToPoint(path, nil, selfCent.x - width/2, selfCent.y - width/2)
-        CGPathAddLineToPoint(path, nil, selfCent.x - width/2, selfCent.y + width/2)
-        CGPathAddLineToPoint(path, nil, selfCent.x + width/2 - 4, selfCent.y)
-        CGPathAddLineToPoint(path, nil, selfCent.x - width/2, selfCent.y - width/2)
-        
-        let color = UIColor ( red: 1.0, green: 1.0, blue: 1.0, alpha: 0.5 ).CGColor
+        let path = CGMutablePath()
+        path.move(to: CGPoint.init(x: selfCent.x - width/2, y: selfCent.y - width/2))
+        path.addLine(to: CGPoint.init(x: selfCent.x - width/2, y: selfCent.y + width/2))
+        path.addLine(to: CGPoint.init(x:selfCent.x + width/2 - 4, y: selfCent.y))
+        path.addLine(to: CGPoint.init(x:selfCent.x - width/2,y:selfCent.y - width/2))
+
+        let color = UIColor ( red: 1.0, green: 1.0, blue: 1.0, alpha: 0.5 ).cgColor
         
         let trackLayer = CAShapeLayer()
         trackLayer.frame = self.bounds
-        trackLayer.strokeColor = UIColor.clearColor().CGColor
+        trackLayer.strokeColor = UIColor.clear.cgColor
         trackLayer.fillColor = color
         trackLayer.opacity = 1.0
         trackLayer.lineCap = kCALineCapRound
@@ -81,8 +81,8 @@ class KZVideoPlayer: UIView {
         self.isPlaying = !self.isPlaying
     }
     func playEnd() {
-        self.player.seekToTime(CMTimeMakeWithSeconds(0, self.player.currentItem!.duration.timescale)) { (finished) in
+        self.player.seek(to: CMTimeMakeWithSeconds(0, self.player.currentItem!.duration.timescale), completionHandler: { (finished) in
             self.player.play()
-        }
+        }) 
     }
 }
